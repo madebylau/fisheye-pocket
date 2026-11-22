@@ -24,3 +24,7 @@ Editor de imagen y vídeo que funciona en el navegador. Sin backend ni cuentas.
 5. Si ves una versión anterior, cierra la pestaña y recarga para actualizar la caché.
 
 **Prueba recomendada:** importa un clip de 5 s con audio, aplica un filtro y exporta primero a 720p.
+
+
+### Ajuste 4.1.1 — previsualización grande
+La vista de vídeo muestra solo la barra de reproducción; abre «Más ajustes» para recorte y opciones de exportación. Los controles reducen su altura en pantallas de iPhone para dar prioridad a la imagen.

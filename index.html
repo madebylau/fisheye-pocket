@@ -11,7 +11,7 @@
   <link rel="icon" href="assets/favicon.png" type="image/png" />
   <link rel="apple-touch-icon" href="assets/icon-192.png" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="stylesheet" href="styles.css?v=4" />
+  <link rel="stylesheet" href="styles.css?v=411" />
   <title>FISHEYE — Pocket Optical Lab</title>
 </head>
 <body>
@@ -122,7 +122,7 @@
       </section>
     </main>
 
-<section id="videoStudio" class="video-studio hidden" aria-label="Estudio de vídeo"><div class="video-heading"><strong>VIDEO STUDIO</strong><span id="videoProgress" aria-live="polite"></span></div><div class="video-timeline"><button type="button" id="videoPlay" aria-label="Reproducir o pausar">▶ / Ⅱ</button><input type="range" id="videoSeek" min="0" max="1" step="0.01" value="0" aria-label="Posición del vídeo"/><span id="videoClock">0:00</span></div><div class="trim-grid"><label>INICIO<input type="range" id="trimStart" min="0" max="1" step="0.1" value="0"/></label><label>FINAL<input type="range" id="trimEnd" min="0" max="1" step="0.1" value="1"/></label></div><div class="video-trim-info" id="trimReadout">0:00 — 0:00</div><div class="video-export-options"><label>RESOLUCIÓN<select id="videoResolution"><option value="720">720p</option><option value="1080" selected>1080p</option></select></label><label>FPS<select id="videoFps"><option value="24">24</option><option value="30" selected>30</option></select></label><label>FORMATO<select id="videoFormat"><option value="mp4" selected>MP4 (si disponible)</option><option value="webm">WebM compatible</option></select></label></div><p class="video-note">Exportación en tiempo real: MP4 y audio dependen del soporte de Safari. Clips de hasta 90 s. Sin servidor.</p></section>
+<section id="videoStudio" class="video-studio hidden" aria-label="Estudio de vídeo"><div class="video-heading"><strong>VIDEO STUDIO</strong><div class="video-heading-actions"><span id="videoProgress" aria-live="polite"></span><button id="toggleVideoTools" type="button" aria-expanded="false" aria-controls="videoAdvanced">MÁS AJUSTES ＋</button></div></div><div class="video-timeline"><button type="button" id="videoPlay" aria-label="Reproducir o pausar">▶ / Ⅱ</button><input type="range" id="videoSeek" min="0" max="1" step="0.01" value="0" aria-label="Posición del vídeo"/><span id="videoClock">0:00</span></div><div id="videoAdvanced" class="video-advanced hidden"><div class="trim-grid"><label>INICIO<input type="range" id="trimStart" min="0" max="1" step="0.1" value="0"/></label><label>FINAL<input type="range" id="trimEnd" min="0" max="1" step="0.1" value="1"/></label></div><div class="video-trim-info" id="trimReadout">0:00 — 0:00</div><div class="video-export-options"><label>RESOLUCIÓN<select id="videoResolution"><option value="720">720p</option><option value="1080" selected>1080p</option></select></label><label>FPS<select id="videoFps"><option value="24">24</option><option value="30" selected>30</option></select></label><label>FORMATO<select id="videoFormat"><option value="mp4" selected>MP4 (si disponible)</option><option value="webm">WebM compatible</option></select></label></div><p class="video-note">Exportación en tiempo real: MP4 y audio dependen del soporte de Safari. Clips de hasta 90 s. Sin servidor.</p></div></section>
     <footer class="export-dock">
       <div class="export-inner">
         <div class="format-select-wrap"><label for="fileFormat">FORMATO</label><select id="fileFormat" aria-label="Formato de exportación"><option value="jpeg">JPG</option><option value="png">PNG</option></select></div>
@@ -145,6 +145,6 @@
     <div class="help-foot">Todo el procesado sucede en tu dispositivo. No guardamos ni subimos tus fotografías.</div>
   </dialog>
   <div class="camera-overlay hidden" id="cameraOverlay"><div class="camera-top"><strong>CÁMARA · LIVE FILTER</strong><button id="closeCamera" type="button">CERRAR ✕</button></div><div id="cameraPreview" class="camera-preview"><video id="cameraFeed" autoplay playsinline muted></video></div><div class="camera-bottom"><button id="flipCamera" type="button">↻ GIRAR</button><button id="takePhoto" type="button" aria-label="Hacer foto" class="shutter"></button><span>FILTRO ACTIVO</span></div></div><div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="app.js?v=4" defer></script>
+  <script src="app.js?v=411" defer></script>
 </body>
 </html>

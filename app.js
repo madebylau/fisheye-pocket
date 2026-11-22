@@ -799,4 +799,17 @@
     }
   }
   main();
+
+  // Keep video trimming/export settings out of the way until needed.
+  const toggleVideoTools = document.getElementById('toggleVideoTools');
+  const videoAdvanced = document.getElementById('videoAdvanced');
+  if(toggleVideoTools && videoAdvanced){
+    toggleVideoTools.addEventListener('click', () => {
+      const opening = videoAdvanced.classList.contains('hidden');
+      videoAdvanced.classList.toggle('hidden', !opening);
+      toggleVideoTools.setAttribute('aria-expanded', String(opening));
+      toggleVideoTools.textContent = opening ? 'MENOS AJUSTES −' : 'MÁS AJUSTES ＋';
+      requestAnimationFrame(() => { fitStage(); queueRender(); });
+    });
+  }
 })();

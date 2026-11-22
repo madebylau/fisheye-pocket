@@ -89,3 +89,38 @@ button{-webkit-tap-highlight-color:transparent}
 
 /* v4.1 Video Studio */
 .video-studio{background:#f6f6f2;border-top:1px solid #ddd;padding:10px 0 7px;flex-shrink:0}.video-heading{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.12em}.video-timeline{display:flex;align-items:center;gap:8px;margin:7px 0}.video-timeline button{border:1px solid #ddd;border-radius:6px;background:#fff;padding:7px;font-size:10px}.video-timeline input{flex:1;min-width:0}.video-timeline span{font-size:10px}.trim-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.trim-grid label,.video-export-options label{display:flex;flex-direction:column;gap:3px;font-size:9px;font-weight:750;color:#6b6b65}.trim-grid input{width:100%;accent-color:#222}.video-trim-info{text-align:center;font-size:10px;margin:2px 0 6px}.video-export-options{display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:8px}.video-export-options select{max-width:100%;font-size:11px;background:#fff;border:1px solid #ddd;border-radius:5px;padding:5px}.video-note{font-size:9px;line-height:1.3;color:#777;margin:6px 0 0}@media(max-height:800px){.video-studio:not(.hidden)~.export-dock{padding-top:5px}.video-studio:not(.hidden){max-height:195px;overflow-y:auto}.video-studio:not(.hidden) .video-note{display:none}}
+
+/* 4.1.1 — The photograph/video is the main canvas, not a thumbnail.
+   Keep editing tools secondary on phone-sized screens. */
+.preview-wrap{min-height:180px}
+.preview-viewport{width:100%; min-height:0; flex:1 1 auto}
+.preview-stage{max-width:100%;max-height:100%;}
+.video-studio{padding:7px 0 5px}
+.video-heading{align-items:center;min-height:24px}
+.video-heading-actions{display:flex;align-items:center;gap:10px}
+.video-heading-actions button{border:1px solid #d7d7d2;background:#fff;border-radius:7px;padding:6px 8px;font:inherit;font-size:10px;font-weight:700;color:#333}
+.video-advanced{padding-top:7px}
+.video-advanced.hidden{display:none!important}
+.video-timeline{margin:5px 0 3px}
+.video-timeline button{padding:5px 8px}
+@media(max-height:850px){
+  .topbar{height:50px}
+  .panel-space{height:104px}
+  .panel{padding:7px 0}
+  .lens-grid{height:59px}
+  .lens-thumb{height:32px}
+  .lens-round i{width:30px;height:30px}
+  .lens-peep i{width:27px;height:27px}
+  .look-swatch{height:43px;margin-bottom:5px}
+  .adjust-grid{height:79px}
+  .adjust-option{height:69px}
+  .active-slider{height:57px;padding:6px 1px}
+  .tabs{height:37px}
+  .preview-footer{height:39px}
+}
+@media(max-height:720px){
+  .panel-space{height:87px}
+  .stage-heading{height:27px}
+  .preview-footer{height:36px}
+  .topbar{height:44px}
+}
