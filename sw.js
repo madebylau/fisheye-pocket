@@ -1,5 +1,5 @@
-const VERSION = 'fisheye-v1.1';
-const APP_SHELL = ['./', './index.html', './styles.css', './app.js', './manifest.webmanifest', './assets/icon-192.png', './assets/icon-512.png', './assets/favicon.png', './assets/demo.jpg'];
+const VERSION = 'fisheye-v2.0';
+const APP_SHELL = ['./', './index.html', './styles.css?v=2', './app.js?v=2', './manifest.webmanifest', './assets/icon-192.png', './assets/icon-512.png', './assets/favicon.png', './assets/demo.jpg'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(VERSION).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
 });
@@ -16,5 +16,5 @@ self.addEventListener('fetch', event => {
       caches.open(VERSION).then(cache => cache.put(request, copy));
     }
     return response;
-  }).catch(() => caches.match(request).then(hit => hit || caches.match('./index.html'))));
+  }).catch(() => caches.match(request, {ignoreSearch:true}).then(hit => hit || caches.match('./index.html'))));
 });

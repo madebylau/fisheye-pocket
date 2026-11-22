@@ -6,9 +6,27 @@
   const $$ = selector => [...document.querySelectorAll(selector)];
   const canvas = $('#photoCanvas');
   const stage = $('#stage');
+  const previewViewport = $('#previewViewport');
   const input = $('#photoInput');
   const toastElement = $('#toast');
-  const state = { mode: 1, ratio: '1:1', preset: 1, distortion: 78, filterPower: 88, grain: 30, vignette: 40, temperature: 0, aberration: 34, compare: false };
+  const defaults = { mode: 1, ratio: '1:1', preset: 1, distortion: 78, filterPower: 88, grain: 30, vignette: 40, temperature: 0, aberration: 34, blur: 0, edgeBlur: 0, edgeFeather: 8, compare: false };
+  const state = {...defaults};
+  const controls = {
+    distortion: {label: 'DISTORSIÓN', min: 0, max: 100, suffix: '%'},
+    filterPower: {label: 'INTENSIDAD DEL FILTRO', min: 0, max: 100, suffix: '%'},
+    grain: {label: 'GRANO ANALÓGICO', min: 0, max: 100, suffix: '%'},
+    vignette: {label: 'VIÑETA', min: 0, max: 100, suffix: '%'},
+    temperature: {label: 'TEMPERATURA', min: -100, max: 100, suffix: ''},
+    aberration: {label: 'ABERRACIÓN CROMÁTICA', min: 0, max: 100, suffix: '%'},
+    blur: {label: 'DESENFOQUE GENERAL', min: 0, max: 100, suffix: '%'},
+    edgeBlur: {label: 'DESENFOQUE DE BORDES', min: 0, max: 100, suffix: '%'},
+    edgeFeather: {label: 'SUAVIDAD DEL ARO', min: 0, max: 100, suffix: '%'}
+  };
+  let currentTab = 'lens';
+  let activeControl = 'distortion';
+  let previousAdjust = 'grain';
+  let textureWidth = 1200;
+  let textureHeight = 1200;
   let imageWidth = 1200;
   let imageHeight = 1200;
   let imageName = 'demo';
@@ -35,6 +53,7 @@
     uniform sampler2D u_texture;
     uniform vec2 u_size;
     uniform vec2 u_imgSize;
+    uniform vec2 u_texSize;
     uniform float u_mode;
     uniform float u_distortion;
     uniform float u_preset;
@@ -43,6 +62,9 @@
     uniform float u_vignette;
     uniform float u_temperature;
     uniform float u_aberration;
+    uniform float u_blur;
+    uniform float u_edgeBlur;
+    uniform float u_edgeFeather;
     uniform float u_compare;
 
     float rand(vec2 n) {return fract(sin(dot(n, vec2(12.9898, 78.233))) * 43758.5453123);}
@@ -71,20 +93,34 @@
           sourceUV = ((uv - 0.5) * relative) * crop + 0.5;
         } else {
           sourceUV = ((p / maxRadius) * 0.5 * relative / vec2(aspect, 1.0)) * crop + 0.5;
-          float edge = u_mode > 1.5 ? 0.018 : 0.012;
+          float edge = mix(0.006, 0.22, u_edgeFeather);
           mask = 1.0 - smoothstep(1.0 - edge, 1.0, rn);
         }
         radial = (r > 0.00001 ? p / r : vec2(0.0)) / vec2(aspect, 1.0);
       }
 
       vec2 aberration = radial * (u_aberration * 0.012 * pow(min(rn, 1.0), 2.0));
-      vec3 col;
-      if (u_compare > 0.5) {
-        col = texture2D(u_texture, clamp(sourceUV, 0.0, 1.0)).rgb;
-      } else {
-        col.r = texture2D(u_texture, clamp(sourceUV + aberration, 0.0, 1.0)).r;
-        col.g = texture2D(u_texture, clamp(sourceUV, 0.0, 1.0)).g;
-        col.b = texture2D(u_texture, clamp(sourceUV - aberration, 0.0, 1.0)).b;
+      vec3 col = texture2D(u_texture, clamp(sourceUV, 0.0, 1.0)).rgb;
+      if(u_compare < 0.5) {
+        float peripheral = smoothstep(0.34, 0.99, rn);
+        float blurStrength = clamp(u_blur + u_edgeBlur * peripheral, 0.0, 1.0);
+        if(blurStrength > 0.005) {
+          vec2 radius = vec2(1.0) / max(u_texSize, vec2(1.0)) * (pow(blurStrength, 1.12) * 22.0);
+          vec3 soft = col * 0.20;
+          soft += texture2D(u_texture, clamp(sourceUV + vec2( radius.x, 0.0), 0.0, 1.0)).rgb * 0.10;
+          soft += texture2D(u_texture, clamp(sourceUV + vec2(-radius.x, 0.0), 0.0, 1.0)).rgb * 0.10;
+          soft += texture2D(u_texture, clamp(sourceUV + vec2(0.0,  radius.y), 0.0, 1.0)).rgb * 0.10;
+          soft += texture2D(u_texture, clamp(sourceUV + vec2(0.0, -radius.y), 0.0, 1.0)).rgb * 0.10;
+          soft += texture2D(u_texture, clamp(sourceUV + vec2( radius.x,  radius.y), 0.0, 1.0)).rgb * 0.10;
+          soft += texture2D(u_texture, clamp(sourceUV + vec2(-radius.x,  radius.y), 0.0, 1.0)).rgb * 0.10;
+          soft += texture2D(u_texture, clamp(sourceUV + vec2( radius.x, -radius.y), 0.0, 1.0)).rgb * 0.10;
+          soft += texture2D(u_texture, clamp(sourceUV + vec2(-radius.x, -radius.y), 0.0, 1.0)).rgb * 0.10;
+          col = mix(col, soft, smoothstep(0.0, 0.045, blurStrength));
+        }
+        if(u_aberration > 0.001) {
+          col.r = mix(col.r, texture2D(u_texture, clamp(sourceUV + aberration, 0.0, 1.0)).r, 0.8);
+          col.b = mix(col.b, texture2D(u_texture, clamp(sourceUV - aberration, 0.0, 1.0)).b, 0.8);
+        }
       }
 
       if(u_compare < 0.5) {
@@ -99,8 +135,19 @@
           graded = vec3(col.r*1.21+0.035,col.g*0.94+0.014,col.b*0.68);
         } else if(u_preset > 3.5 && u_preset < 4.5) { // Cold fluorescent
           graded = vec3(col.r*0.69,col.g*1.08+0.018,col.b*1.13+0.022);
-        } else if(u_preset > 4.5) { // Monochrome
+        } else if(u_preset > 4.5 && u_preset < 5.5) { // Monochrome
           graded = vec3(lum*1.03,lum*1.02,lum);
+        } else if(u_preset > 5.5 && u_preset < 6.5) { // Acid green
+          graded = vec3(lum*0.65+0.025, lum*1.19+0.06, lum*0.18+0.005);
+        } else if(u_preset > 6.5 && u_preset < 7.5) { // Purple haze
+          graded = vec3(col.r*1.06+0.13*lum, col.g*0.57+0.03, col.b*1.25+0.13*lum);
+        } else if(u_preset > 7.5 && u_preset < 8.5) { // Lo-fi 2003
+          graded = vec3(col.r*0.84+0.13, col.g*0.82+0.11, col.b*0.74+0.12);
+          graded = mix(graded, vec3(dot(graded,vec3(0.3,0.6,0.1))), 0.20);
+        } else if(u_preset > 8.5 && u_preset < 9.5) { // Sodium streetlights
+          graded = vec3(lum*1.32+0.09, lum*0.64+0.017, lum*0.13);
+        } else if(u_preset > 9.5) { // Blue hour
+          graded = vec3(col.r*0.59, col.g*0.83+0.018, col.b*1.28+0.025);
         }
         col = mix(col, graded, u_filterPower);
         col += u_temperature * vec3(0.12, 0.01, -0.14);
@@ -156,7 +203,7 @@
       gl.enableVertexAttribArray(position);
       gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
       uniforms = {};
-      ['u_texture','u_size','u_imgSize','u_mode','u_distortion','u_preset','u_filterPower','u_grain','u_vignette','u_temperature','u_aberration','u_compare'].forEach(name => uniforms[name] = gl.getUniformLocation(program,name));
+      ['u_texture','u_size','u_imgSize','u_texSize','u_mode','u_distortion','u_preset','u_filterPower','u_grain','u_vignette','u_temperature','u_aberration','u_blur','u_edgeBlur','u_edgeFeather','u_compare'].forEach(name => uniforms[name] = gl.getUniformLocation(program,name));
       cachedTexture = gl.createTexture();
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D,cachedTexture);
@@ -195,6 +242,8 @@
         ctx.drawImage(img,0,0,shrunk.width,shrunk.height);
         upload = shrunk;
       }
+      textureWidth = upload.width || upload.naturalWidth;
+      textureHeight = upload.height || upload.naturalHeight;
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D,cachedTexture);
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
@@ -230,9 +279,21 @@
     }
   }
   function updatePreviewRatio() {
-    stage.style.aspectRatio = `${getRatio()}`;
+    fitStage();
     $('#lensLabel').textContent = ['FULL FRAME','180° FISHEYE','PEEPHOLE'][state.mode];
     queueRender();
+  }
+  function fitStage() {
+    const availableWidth = previewViewport.clientWidth;
+    const availableHeight = previewViewport.clientHeight;
+    if(!availableWidth || !availableHeight) return;
+    const ratio = getRatio();
+    const width = Math.max(1, Math.min(availableWidth, availableHeight * ratio));
+    const height = width / ratio;
+    const cssWidth = `${width}px`;
+    const cssHeight = `${height}px`;
+    if(stage.style.width !== cssWidth) stage.style.width = cssWidth;
+    if(stage.style.height !== cssHeight) stage.style.height = cssHeight;
   }
   function resizePreview() {
     if(!renderReady || !loadedImage) return;
@@ -253,6 +314,7 @@
     gl.bindTexture(gl.TEXTURE_2D,cachedTexture);
     gl.uniform2f(uniforms.u_size,canvas.width,canvas.height);
     gl.uniform2f(uniforms.u_imgSize,imageWidth,imageHeight);
+    gl.uniform2f(uniforms.u_texSize,textureWidth,textureHeight);
     gl.uniform1f(uniforms.u_mode,state.mode);
     gl.uniform1f(uniforms.u_distortion,state.distortion/100);
     gl.uniform1f(uniforms.u_preset,state.preset);
@@ -261,6 +323,9 @@
     gl.uniform1f(uniforms.u_vignette,state.vignette/100);
     gl.uniform1f(uniforms.u_temperature,state.temperature/100);
     gl.uniform1f(uniforms.u_aberration,state.aberration/100);
+    gl.uniform1f(uniforms.u_blur,state.blur/100);
+    gl.uniform1f(uniforms.u_edgeBlur,state.edgeBlur/100);
+    gl.uniform1f(uniforms.u_edgeFeather,state.edgeFeather/100);
     gl.uniform1f(uniforms.u_compare,state.compare?1:0);
     gl.drawArrays(gl.TRIANGLES,0,6);
   }
@@ -269,12 +334,14 @@
     animationPending = true;
     requestAnimationFrame(() => {
       animationPending = false;
+      fitStage();
       resizePreview();
       renderFrame();
     });
   }
 
   function selectTab(tab) {
+    currentTab = tab;
     $$('.tab').forEach(button => {
       const selected = button.dataset.tab === tab;
       button.classList.toggle('active',selected);
@@ -286,7 +353,7 @@
       panel.hidden = !selected;
       panel.classList.toggle('active',selected);
     });
-    $('#editor-count').textContent = ({lens:'01 — 03',looks:'02 — 03',adjust:'03 — 03'})[tab];
+    selectControl(tab === 'lens' ? 'distortion' : tab === 'looks' ? 'filterPower' : previousAdjust);
   }
 
   function updateSelections() {
@@ -305,26 +372,41 @@
       button.classList.toggle('selected',selected);
       button.setAttribute('aria-pressed',String(selected));
     });
+    $$('.adjust-option').forEach(button => {
+      const selected = button.dataset.control === previousAdjust;
+      button.classList.toggle('selected',selected);
+      button.setAttribute('aria-pressed',String(selected));
+    });
   }
-  const sliderConfig = [
-    ['distortion','distortion','%'],['filterPower','filterPower','%'],
-    ['grain','grain','%'],['vignette','vignette','%'],['temperature','temperature',''],
-    ['aberration','aberration','%']
-  ];
-  function updateSlider(inputId,stateKey,suffix) {
-    const input = $(`#${inputId}`);
-    const min = +input.min;
-    const max = +input.max;
-    input.value = String(state[stateKey]);
-    input.style.setProperty('--pct',`${((state[stateKey]-min)/(max-min))*100}%`);
-    $(`#${inputId}Value`).textContent = `${state[stateKey] > 0 && stateKey === 'temperature' ? '+' : ''}${state[stateKey]}${suffix}`;
+
+  function selectControl(key) {
+    const config = controls[key];
+    if(!config) return;
+    activeControl = key;
+    if(currentTab === 'adjust') previousAdjust = key;
+    const slider = $('#activeSlider');
+    slider.min = config.min;
+    slider.max = config.max;
+    $('#activeSliderLabel').textContent = config.label;
+    updateActiveSlider();
+    updateSelections();
+  }
+  function updateActiveSlider() {
+    const config = controls[activeControl];
+    const value = state[activeControl];
+    const slider = $('#activeSlider');
+    slider.value = String(value);
+    slider.style.setProperty('--pct', `${(value - config.min) / (config.max - config.min) * 100}%`);
+    const sign = activeControl === 'temperature' && value > 0 ? '+' : '';
+    $('#activeSliderValue').textContent = `${sign}${value}${config.suffix}`;
   }
   function reset() {
-    Object.assign(state,{mode:1,ratio:'1:1',preset:1,distortion:78,filterPower:88,grain:30,vignette:40,temperature:0,aberration:34,compare:false});
+    Object.assign(state, defaults);
+    previousAdjust = 'grain';
     $('#beforeChip').classList.add('hidden');
-    sliderConfig.forEach(config => updateSlider(...config));
     updateSelections();
     updatePreviewRatio();
+    selectControl(currentTab === 'lens' ? 'distortion' : currentTab === 'looks' ? 'filterPower' : previousAdjust);
     showToast('Ajustes restablecidos.');
   }
   function exportSize() {
@@ -439,10 +521,16 @@
     $$('.lens-option').forEach(button => button.addEventListener('click',()=>{state.mode=+button.dataset.mode;updateSelections();updatePreviewRatio();}));
     $$('.ratio').forEach(button => button.addEventListener('click',()=>{state.ratio=button.dataset.ratio;updateSelections();updatePreviewRatio();}));
     $$('.look').forEach(button => button.addEventListener('click',()=>{state.preset=+button.dataset.preset;updateSelections();queueRender();}));
-    sliderConfig.forEach(([id,key,suffix]) => {
-      const control = $(`#${id}`);
-      control.addEventListener('input',() => {state[key]=+control.value;updateSlider(id,key,suffix);queueRender();});
-      updateSlider(id,key,suffix);
+    $$('.adjust-option').forEach(button => button.addEventListener('click', () => selectControl(button.dataset.control)));
+    $('#activeSlider').addEventListener('input',event => {
+      state[activeControl] = +event.currentTarget.value;
+      updateActiveSlider();
+      queueRender();
+    });
+    $('#resetSingle').addEventListener('click', () => {
+      state[activeControl] = defaults[activeControl];
+      updateActiveSlider();
+      queueRender();
     });
     const compare = $('#compareButton');
     compare.addEventListener('pointerdown',event=>{event.preventDefault();compare.setPointerCapture?.(event.pointerId);setCompare(true);});
@@ -455,8 +543,9 @@
     $('#helpButton').addEventListener('click',()=>$('#helpDialog').showModal());
     $('#closeHelp').addEventListener('click',()=>$('#helpDialog').close());
     $('#helpDialog').addEventListener('click',event=>{if(event.target===event.currentTarget)event.currentTarget.close();});
-    new ResizeObserver(()=>queueRender()).observe(stage);
-    window.addEventListener('orientationchange',()=>setTimeout(queueRender,300));
+    if('ResizeObserver' in window) new ResizeObserver(() => queueRender()).observe(previewViewport);
+    window.addEventListener('resize', queueRender);
+    window.addEventListener('orientationchange', () => setTimeout(queueRender, 300));
     canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();renderReady=false;showToast('El navegador pausó el procesado. Recarga la página para continuar.',6500);});
   }
 

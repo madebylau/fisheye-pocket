@@ -1,62 +1,71 @@
-# FISHEYE · Pocket Optical Lab
+# FISHEYE · Pocket Optical Lab 2.0
 
-Una pequeña web app para editar fotos con estética **fisheye / ojo de pez** desde el móvil, inspirada en el grano analógico, los verdes de visión nocturna, los tonos rojos de neón y las mirillas de puerta. Una interfaz sencilla sin registro y sin dependencias externas.
+Una web app gratuita para editar fotografías desde el móvil, con efecto **ojo de pez / fisheye**, filtros analógicos y desenfoque. Se ejecuta directamente en el navegador, sin cuenta ni subir tus fotos a servidores. Sin frameworks ni dependencias externas.
 
-## Qué puedes hacer
+## Novedades de la versión 2.0
 
-- Importar fotos de tu galería o hacer una foto desde el selector del móvil.
-- Elegir tres lentes: **FULL FRAME**, **180° CIRCLE** y **PEEPHOLE**.
-- Ajustar la distorsión de la lente y elegir formatos **Original**, **1:1**, **4:5** o **9:16**.
-- Aplicar seis looks: **RAW**, **NIGHT VISION**, **RED LIGHT**, **AMBER 35**, **COLD TONE**, **MONOCHROME**.
-- Ajustar intensidad, grano, viñeta, temperatura y aberración cromática.
-- Comparar con la imagen original **manteniendo pulsado** el icono de comparar.
-- Exportar **JPG o PNG**. En móviles compatibles se abre el menú nativo para compartir/guardar.
-- Añadir la web a la pantalla de inicio del iPhone o Android y usarla como app. Tras la primera visita puede abrirse sin conexión, siempre que el navegador conserve los datos del sitio.
+- **Foto siempre visible** en la parte superior de la pantalla mientras editas. No hace falta desplazarse verticalmente para ver los cambios.
+- **Un solo deslizador** en la parte inferior de las herramientas: seleccionas qué retocar y mueves el deslizador mientras observas la imagen en tiempo real.
+- **Herramientas y filtros en carruseles horizontales** que se recorren con el dedo.
+- **Desenfoque general:** suaviza toda la foto.
+- **Desenfoque de bordes:** mantiene el centro más nítido y difumina progresivamente la periferia del ojo de pez (también en Full Frame).
+- **Aro suave:** difumina la transición entre la foto y el borde negro de la lente circular o mirilla. No se aprecia en Full Frame, donde no hay aro negro.
+- **Cinco filtros nuevos:** Acid Green, Purple Haze, Lo-Fi 2003, Sodium y Blue Hour. Ahora hay **11 filtros en total**.
 
-### Importante: qué hace el ojo de pez
+## Cómo usarlo en tu móvil
 
-El efecto se **simula por software** sobre una foto ya hecha. Dobla la perspectiva y crea un marco circular o de mirilla; **no puede recuperar el campo de visión real de 180°** que captaría una lente ojo de pez. Para lograr resultados más espectaculares, parte de imágenes tomadas con un angular amplio y objetos cercanos al centro o en los bordes.
+1. Pulsa **Subir foto** y elige una imagen de tu galería.
+2. En **Lente**, elige Full Frame, 180° Circle o Peephole. Usa el deslizador para la distorsión y los botones pequeños para el formato.
+3. En **Filtros**, desliza las miniaturas hacia los lados y toca un look. El deslizador inferior cambia su intensidad.
+4. En **Ajustes**, desliza los botones horizontalmente y toca Grano, Viñeta, Temperatura, Aberración, Desenfoque, Blur Bordes o Aro Suave. El deslizador controla el ajuste seleccionado.
+5. Mantén pulsado el icono de **Comparar** (arriba a la derecha de la foto) para ver el original. El icono circular de **Restablecer** devuelve los valores de fábrica; el icono ↺ junto al deslizador solo restablece el ajuste activo.
+6. Selecciona **JPG** o **PNG** y pulsa **Guardar imagen**. En un iPhone compatible aparece el menú de compartir para guardar en Fotos o Archivos.
 
-## Subir a GitHub Pages (gratis)
+La imagen se encaja dentro del espacio disponible cuando cambias el formato y el editor mantiene todos los controles al alcance. En móviles con pantalla muy pequeña o en horizontal puede ser necesario girar el dispositivo a vertical.
 
-1. En [github.com](https://github.com) entra con tu cuenta y selecciona **New repository**.
-2. Ponle de nombre, por ejemplo, `fisheye-pocket`, y elige **Public** si usas GitHub Free para publicarlo gratis con GitHub Pages.
-3. Pulsa **Create repository**.
-4. Descarga el ZIP facilitado, **descomprímelo**, entra en la carpeta `fisheye-pocket` y sube los **archivos y la carpeta `assets`**, no el ZIP. Deben quedar en la raíz del repositorio: `index.html`, `styles.css`, `app.js`, `manifest.webmanifest`, `sw.js`, `assets/` y, si aparece, `.nojekyll`. Puedes arrastrarlos a **Add file → Upload files**.
-5. Pulsa **Commit changes**.
-6. Ve a **Settings → Pages**, en **Build and deployment → Source** selecciona **Deploy from a branch**. Elige rama **main** y carpeta **/(root)**; pulsa **Save**.
-7. Cuando GitHub indique que está publicada, entra en `https://TU-USUARIO.github.io/fisheye-pocket/` (reemplaza `TU-USUARIO` por tu nombre de GitHub).
+**Nota óptica:** el ojo de pez es una simulación digital de la perspectiva, no genera contenido que esté fuera de la fotografía original. El desenfoque y los filtros se aplican tanto a la vista previa como a la exportación.
 
-Si aparece un **404**, revisa que `index.html` esté directamente en la raíz del repositorio (no dentro de otra carpeta), que Pages apunte a `main / (root)`, y abre la URL indicada por GitHub en la pantalla Pages.
+## Actualizar tu repositorio de GitHub existente
+
+**No necesitas crear otro repositorio** si ya subiste la primera versión.
+
+1. Descarga el ZIP nuevo y descomprímelo.
+2. Entra en tu repositorio de GitHub, por ejemplo `fisheye-pocket`.
+3. Actualiza estos archivos en la raíz: `index.html`, `styles.css`, `app.js`, `sw.js`, `README.md`. Mantén la carpeta `assets/`, `manifest.webmanifest` y `.nojekyll` (el ZIP también los incluye).
+4. Una forma sencilla de reemplazar archivos por navegador es abrir cada archivo en GitHub, pulsar el lápiz **Edit this file**, pegar su contenido nuevo y hacer **Commit changes**. Otra opción es actualizar todos con GitHub Desktop o desde Git local. `Add file → Upload files` también puede sustituir archivos del mismo nombre al confirmar el cambio.
+5. Deja GitHub Pages configurado en **Settings → Pages → Deploy from a branch → main → /(root)**.
+6. Abre la dirección habitual de tu app `https://TU-USUARIO.github.io/fisheye-pocket/`. Si ves la versión antigua, cierra completamente la app instalada y vuelve a abrirla desde Safari; también puedes borrar los datos de ese sitio si persistiese la caché.
+
+### Subirlo por primera vez
+
+1. Accede a [github.com/new](https://github.com/new), crea un repositorio público llamado `fisheye-pocket` y confírmalo.
+2. Descomprime el ZIP y sube **el contenido de la carpeta**, no el ZIP, a la raíz del repositorio. `index.html` debe quedar en la raíz.
+3. Haz Commit changes.
+4. Ve a **Settings → Pages → Deploy from a branch → main → /(root)** y guarda.
+5. Abre `https://TU-USUARIO.github.io/fisheye-pocket/`, sustituyendo `TU-USUARIO` por tu usuario real.
+
+GitHub Pages es gratuito para repositorios públicos compatibles. La web publicada **no es privada ni está protegida por contraseña**; cualquiera que tenga el enlace puede abrir la herramienta, pero no ver tus fotos. Para restringir el acceso al editor hace falta autenticación en otro alojamiento.
 
 ## Instalar en iPhone
 
-1. Abre **la URL publicada** en **Safari**.
-2. Toca **Compartir** (cuadrado con flecha).
-3. Elige **Añadir a pantalla de inicio** y confirma.
-4. Entra a Fisheye desde el icono nuevo. Selecciona **Subir foto** para trabajar con tus imágenes.
-5. Pulsa **Guardar imagen**: si aparece el menú de compartir, elige **Guardar imagen** para Fotos o **Guardar en Archivos**. Si el navegador la descarga directamente, abre el archivo descargado y compártelo con Fotos.
+Abre la URL de GitHub Pages en **Safari → Compartir → Añadir a pantalla de inicio**. Aparecerá como icono independiente. En Android, abre la URL en Chrome y selecciona **Instalar aplicación** o **Añadir a pantalla de inicio**.
 
-En Android: abre la URL en Chrome → menú → **Instalar aplicación** / **Añadir a pantalla de inicio**.
+La aplicación incluye caché offline para los archivos de la app. Tras visitarla online, puede abrirse sin conexión siempre que Safari/Chrome conserven esa caché. La edición en sí no requiere conexión. Las imágenes nunca se guardan en la caché de la aplicación.
 
-## Seguridad y privacidad
+## Compatibilidad y rendimiento
 
-- Las fotos **se procesan directamente en el navegador con WebGL**, no se suben a una API ni a ningún servidor.
-- No hay cuentas, cookies de seguimiento, analytics ni almacenamiento de tus fotos en la aplicación.
-- Los archivos estáticos de la app se sirven desde GitHub Pages. El `service worker` solo guarda temporalmente esos archivos para poder cargar la app sin conexión: **no guarda tus fotografías**.
-- **GitHub Pages no protege la web con contraseña.** Aunque solo tú guardes el icono o conozcas el enlace, quien tenga la URL podrá abrir el editor. Eso **no** significa que pueda ver las fotos que tú editas (esas permanecen en tu dispositivo). Si necesitas acceso restringido real, hace falta otro tipo de hosting con autenticación.
+- Requiere un navegador actualizado con WebGL 1 (habitual en iPhone/Android recientes).
+- Importa JPG, PNG, WebP, AVIF y otros formatos que decodifique el navegador. HEIC/HEIF en iPhone depende de Safari.
+- Para evitar problemas de memoria, el tamaño máximo del lado largo de exportación es de **3200 px**, o el límite menor del dispositivo. Las fotos muy grandes se reducen antes de cargarse en la GPU.
+- El desenfoque se realiza en WebGL para responder de forma interactiva mientras arrastras el deslizador. En móviles antiguos el rendimiento puede variar.
+- No usa análisis de uso, cookies de tracking, APIs de imágenes ni servicios de pago.
 
-## Tecnología
+## Archivos
 
-HTML, CSS y JavaScript, **sin frameworks ni instalaciones**. WebGL procesa la distorsión y los filtros en el dispositivo. Diseñada mobile-first. Código preparado para funcionar en una ruta de proyecto de GitHub Pages como `/fisheye-pocket/`.
-
-### Archivos
-
-- `index.html` — interfaz y controles.
-- `styles.css` — estilos responsive.
-- `app.js` — procesado de imagen, filtros y exportación.
-- `manifest.webmanifest` — ajustes de instalación como PWA.
-- `sw.js` — caché offline de la aplicación.
-- `assets/` — iconos y **demo ilustrada original**.
-
-Nota: en iPhone los formatos HEIC/HEIF dependen de que Safari pueda decodificarlos; si una imagen falla, guárdala primero como JPG o PNG. La exportación se limita a 3200 píxeles en su lado mayor, o menos si el dispositivo tiene un límite gráfico inferior.
+- `index.html` — interfaz, pestañas, carruseles y deslizador contextual.
+- `styles.css` — diseño mobile-first, foto fija visible y soporte de pantallas pequeñas.
+- `app.js` — motor WebGL, once looks, desenfoques, controles y exportación.
+- `manifest.webmanifest` — datos de instalación PWA.
+- `sw.js` — caché offline versión 2.0.
+- `assets/` — iconos y demo original incluida.
+- `.nojekyll` — compatibilidad con GitHub Pages.
