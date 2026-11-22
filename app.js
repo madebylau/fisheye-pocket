@@ -45,6 +45,7 @@
   let cachedTexture = null;
   let history = [], future = [], lastSnapshot = '', cameraLoop = false, cameraCanvasParent = null;
   let mediaMode = 'image', sourceVideo = null, cameraStream = null, cameraFacing = 'environment', mediaTimer = null;
+  let cameraRecording=null, cameraRecordingChunks=[], cameraRecordingStart=0, cameraRecordingBlob=null, cameraRecordingMime='', cameraRecordingFrame=0, cameraOutput=null, cameraOutputStream=null, cameraMicStream=null;
 
   const vertexShaderSource = `
     attribute vec2 a_position;
@@ -310,6 +311,9 @@
     switch(state.ratio) {
       case '1:1': return 1;
       case '4:5': return 4/5;
+      case '3:4': return 3/4;
+      case '4:3': return 4/3;
+      case '16:9': return 16/9;
       case '9:16': return 9/16;
       default: return imageWidth / Math.max(imageHeight,1);
     }
@@ -333,10 +337,14 @@
   }
   function resizePreview() {
     if(!renderReady || !loadedImage || (busy && mediaMode==='video')) return;
-    const rect = stage.getBoundingClientRect();
+    const rect = mediaMode === 'camera' ? $('#cameraPreview').getBoundingClientRect() : stage.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const w = Math.max(1,Math.round(rect.width*dpr));
-    const h = Math.max(1,Math.round(rect.height*dpr));
+    const targetRatio=getRatio();
+    const availW=rect.width,availH=rect.height;
+    const fitW=mediaMode==='camera'?Math.min(availW,availH*targetRatio):availW;
+    const fitH=mediaMode==='camera'?fitW/targetRatio:availH;
+    const w = Math.max(1,Math.round(fitW*dpr));
+    const h = Math.max(1,Math.round(fitH*dpr));
     if(canvas.width !== w || canvas.height !== h) {
       canvas.width = w;
       canvas.height = h;
@@ -446,8 +454,31 @@
     sourceVideo.ontimeupdate=()=>{if(!busy && sourceVideo.currentTime>=videoTrimEnd-.08){sourceVideo.pause();sourceVideo.currentTime=videoTrimStart;}syncVideoUi();};
   }
 
+  function cameraStatus(message){$('#cameraStatus').textContent=message;}
+  function syncCameraControls(){
+    const looks=$$('.look');const active=looks.find(b=>Number(b.dataset.preset)===state.preset);
+    $('#cameraLook').textContent='LOOK · '+(active?.innerText?.trim()||'RAW');
+    $('#cameraLens').textContent='LENTE · '+['FULL','180°','PEEPHOLE'][state.mode];
+    $('#cameraRatio').textContent='FORMATO · '+state.ratio.toUpperCase();
+    $('#cameraModePhoto').classList.toggle('active',$('#cameraModePhoto').dataset.active==='true');
+    $('#cameraModeVideo').classList.toggle('active',$('#cameraModeVideo').dataset.active==='true');
+  }
+  function setCameraMode(video){
+    if(cameraRecording && cameraRecording.state==='recording')return;
+    $('#cameraModePhoto').dataset.active=String(!video);
+    $('#cameraModeVideo').dataset.active=String(video);
+    $('#takePhoto').classList.toggle('hidden',video);
+    $('#recordCamera').classList.toggle('hidden',!video);
+    cameraStatus(video?'Pulsa REC para grabar con el filtro activo':'Pulsa el disparador para hacer la foto');
+    syncCameraControls();
+  }
   function stopCamera() {
-    if(cameraStream) cameraStream.getTracks().forEach(t=>t.stop());
+    if(cameraRecording?.state==='recording') {try{cameraRecording.stop()}catch{}}
+    if(cameraRecordingFrame)cancelAnimationFrame(cameraRecordingFrame);
+    cameraRecordingFrame=0;
+    cameraOutputStream?.getTracks().forEach(t=>t.stop());cameraOutputStream=null;
+    cameraMicStream?.getTracks().forEach(t=>t.stop());cameraMicStream=null;
+    if(cameraStream)cameraStream.getTracks().forEach(t=>t.stop());
     cameraStream = null;
     $('#cameraFeed').srcObject = null;
     if(cameraCanvasParent) {cameraCanvasParent.appendChild(canvas);cameraCanvasParent=null;}
@@ -458,8 +489,9 @@
   async function openCamera() {
     if(!navigator.mediaDevices?.getUserMedia) return showToast('La cámara necesita HTTPS y permiso de Safari.');
     stopCamera();
+    cameraRecordingBlob=null;$('#cameraSave').classList.add('hidden');
     try {
-      cameraStream = await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:cameraFacing}}});
+      cameraStream = await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:cameraFacing},width:{ideal:1280},height:{ideal:720}}});
       const feed=$('#cameraFeed');feed.srcObject=cameraStream;
       $('#cameraOverlay').classList.remove('hidden');
       await feed.play();
@@ -467,19 +499,82 @@
       cameraCanvasParent=canvas.parentNode;
       $('#cameraPreview').appendChild(canvas);
       mediaMode='camera';
+      setCameraMode($('#cameraModeVideo').dataset.active==='true');
       queueRender();
     } catch(e) {console.error(e);stopCamera();showToast('No se pudo abrir la cámara. Revisa los permisos.');}
   }
   function takePhoto() {
     const feed=$('#cameraFeed');
-    if(!feed.videoWidth) return;
+    if(!feed.videoWidth)return;
     const capture=document.createElement('canvas');
     capture.width=feed.videoWidth;capture.height=feed.videoHeight;
     capture.getContext('2d').drawImage(feed,0,0);
     stopCamera();
     setSource(capture,'CÁMARA','captura');
     $('#exportLabel').textContent='GUARDAR IMAGEN';
-    showToast('Captura lista con los mismos ajustes que veías en directo.');
+    showToast('Foto con el look elegido. Pulsa GUARDAR IMAGEN para enviarla a Fotos.',5500);
+  }
+  const cameraRecordingTypes=()=>[
+    'video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4;codecs=avc1.42E01E','video/mp4',
+    'video/webm;codecs=vp8,opus','video/webm;codecs=vp8'
+  ];
+  async function beginCameraRecording(){
+    if(!cameraStream||!canvas.captureStream||!window.MediaRecorder){cameraStatus('Grabación con filtros no disponible en este Safari.');return;}
+    const mime=cameraRecordingTypes().find(type=>MediaRecorder.isTypeSupported(type));
+    if(!mime){cameraStatus('El navegador no permite codificar la grabación.');return;}
+    cameraRecordingBlob=null;$('#cameraSave').classList.add('hidden');
+    try{
+      // Request mic explicitly on recording, so photo mode never needs microphone permission.
+      try{cameraMicStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});}
+      catch(err){cameraMicStream=null;showToast('No hay acceso al micro: el vídeo podría guardarse sin sonido.',4200);}
+      cameraOutput=document.createElement('canvas');
+      // Limit processing/encoding size to keep iPhones responsive.
+      const ratio=getRatio();const long=720;
+      cameraOutput.width=Math.max(2,Math.round((ratio>=1?long:long*ratio)/2)*2);
+      cameraOutput.height=Math.max(2,Math.round((ratio>=1?long/ratio:long)/2)*2);
+      const ctx=cameraOutput.getContext('2d',{alpha:false});
+      cameraOutputStream=cameraOutput.captureStream(30);
+      if(cameraMicStream?.getAudioTracks()[0])cameraOutputStream.addTrack(cameraMicStream.getAudioTracks()[0]);
+      cameraRecordingChunks=[];cameraRecordingMime=mime;
+      cameraRecording=new MediaRecorder(cameraOutputStream,{mimeType:mime,videoBitsPerSecond:3000000});
+      cameraRecording.ondataavailable=e=>{if(e.data.size)cameraRecordingChunks.push(e.data)};
+      cameraRecording.onerror=e=>{console.warn('Camera recorder error',e);cameraStatus('No se pudo grabar. Prueba otra vez.')};
+      cameraRecording.onstop=()=>{
+        if(cameraRecordingFrame)cancelAnimationFrame(cameraRecordingFrame);
+        cameraRecordingFrame=0;
+        cameraOutputStream?.getTracks().forEach(t=>t.stop());cameraOutputStream=null;
+        cameraMicStream?.getTracks().forEach(t=>t.stop());cameraMicStream=null;
+        const blob=new Blob(cameraRecordingChunks,{type:cameraRecordingMime});
+        if(blob.size){cameraRecordingBlob=blob;$('#cameraSave').classList.remove('hidden');cameraStatus('Vídeo listo · toca GUARDAR EN FOTOS');}
+        else cameraStatus('La grabación no generó un archivo.');
+        $('#recordCamera').classList.remove('recording');$('#recordCamera').textContent='● REC';
+      };
+      const paint=()=>{
+        if(!cameraRecording||cameraRecording.state!=='recording')return;
+        renderFrame();
+        ctx.drawImage(canvas,0,0,cameraOutput.width,cameraOutput.height);
+        if(state.timestamp){const f=Math.max(12,Math.round(cameraOutput.width*.03));ctx.font=`bold ${f}px monospace`;ctx.textAlign='right';ctx.fillStyle='#ffab57';ctx.fillText(new Date().toLocaleDateString('en-GB').replaceAll('/','.'),cameraOutput.width-f,cameraOutput.height-f);}
+        const seconds=Math.floor((performance.now()-cameraRecordingStart)/1000);
+        cameraStatus(`GRABANDO · ${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(seconds%60).padStart(2,'0')} · máximo 60 s`);
+        if(seconds>=60){finishCameraRecording();return;}
+        cameraRecordingFrame=requestAnimationFrame(paint);
+      };
+      cameraRecording.start(250);cameraRecordingStart=performance.now();
+      $('#recordCamera').classList.add('recording');$('#recordCamera').textContent='■ STOP';paint();
+    }catch(err){console.error(err);cameraStatus('Error iniciando grabación. Comprueba los permisos.');cameraMicStream?.getTracks().forEach(t=>t.stop());}
+  }
+  function finishCameraRecording(){
+    if(cameraRecording?.state==='recording'){try{cameraRecording.stop()}catch(e){console.warn(e)}}
+  }
+  async function saveCameraRecording(){
+    if(!cameraRecordingBlob)return;
+    const ext=cameraRecordingMime.includes('mp4')?'mp4':'webm';
+    const file=new File([cameraRecordingBlob],`fisheye-camera-${Date.now()}.${ext}`,{type:cameraRecordingMime});
+    if(navigator.canShare?.({files:[file]})){
+      try{await navigator.share({files:[file],title:'Vídeo FISHEYE'});cameraStatus('En el menú Compartir, elige Guardar vídeo.');return;}
+      catch(e){if(e.name==='AbortError')return;}
+    }
+    downloadBlob(cameraRecordingBlob,file.name);cameraStatus('Vídeo descargado; ábrelo desde Archivos para guardarlo.');
   }
 
   function selectTab(tab) {
@@ -712,6 +807,13 @@
     $('#closeCamera').addEventListener('click',stopCamera);
     $('#flipCamera').addEventListener('click',()=>{cameraFacing=cameraFacing==='environment'?'user':'environment';openCamera();});
     $('#takePhoto').addEventListener('click',takePhoto);
+    $('#cameraModePhoto').addEventListener('click',()=>setCameraMode(false));
+    $('#cameraModeVideo').addEventListener('click',()=>setCameraMode(true));
+    $('#recordCamera').addEventListener('click',()=>cameraRecording?.state==='recording'?finishCameraRecording():beginCameraRecording());
+    $('#cameraSave').addEventListener('click',saveCameraRecording);
+    $('#cameraLook').addEventListener('click',()=>{snapshot();state.preset=(state.preset+1)%17;updateSelections();syncCameraControls();queueRender();});
+    $('#cameraLens').addEventListener('click',()=>{snapshot();state.mode=(state.mode+1)%3;updateSelections();syncCameraControls();queueRender();});
+    $('#cameraRatio').addEventListener('click',()=>{const ratios=['original','1:1','4:5','3:4','9:16','4:3','16:9'];snapshot();state.ratio=ratios[(ratios.indexOf(state.ratio)+1)%ratios.length];updateSelections();syncCameraControls();queueRender();});
     let pointer=null, pinchStart=null;
     const touches=new Map();
     stage.addEventListener('pointerdown',e=>{if(e.target!==canvas && e.target!==stage)return;stage.setPointerCapture(e.pointerId);touches.set(e.pointerId,{x:e.clientX,y:e.clientY});pointer={x:e.clientX,y:e.clientY};if(touches.size===2){const a=[...touches.values()];pinchStart={distance:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y),zoom:state.zoom};}});

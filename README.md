@@ -28,3 +28,15 @@ Editor de imagen y vídeo que funciona en el navegador. Sin backend ni cuentas.
 
 ### Ajuste 4.1.1 — previsualización grande
 La vista de vídeo muestra solo la barra de reproducción; abre «Más ajustes» para recorte y opciones de exportación. Los controles reducen su altura en pantallas de iPhone para dar prioridad a la imagen.
+
+
+## 4.1.2 — Formatos de imagen
+Se recupera la barra de formatos accesible desde LENTE, sin ocultarse detrás del panel: Original, 1:1, 4:5, 3:4, 9:16, 4:3 y 16:9. Desliza horizontalmente para verlos todos.
+
+
+## v4.1.3 · Cámara en directo
+- En **CÁMARA** elige FOTO o VÍDEO; cambia look, lente y proporción sin salir de la cámara.
+- FOTO: dispara, vuelve al editor y pulsa GUARDAR IMAGEN → en iPhone elige **Guardar imagen** desde Compartir.
+- VÍDEO: REC, STOP, GUARDAR EN FOTOS. Se intentará crear MP4 si Safari lo soporta; WebM si no. Micrófono requiere permiso independiente.
+- **Limitación iOS:** la grabación de un canvas WebGL con audio usando MediaRecorder no funciona en todos los Safari; si no está soportada, se informa en pantalla. El menú de compartir solo mostrará Guardar vídeo si iOS reconoce el formato. No es una exportación MP4 garantizada.
+- La grabación se limita a 60 s, a 720p para reducir el uso de memoria. Prueba primero un clip corto con audio en el iPhone.

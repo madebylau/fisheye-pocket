@@ -11,7 +11,7 @@
   <link rel="icon" href="assets/favicon.png" type="image/png" />
   <link rel="apple-touch-icon" href="assets/icon-192.png" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="stylesheet" href="styles.css?v=411" />
+  <link rel="stylesheet" href="styles.css?v=413" />
   <title>FISHEYE — Pocket Optical Lab</title>
 </head>
 <body>
@@ -72,7 +72,7 @@
               <button class="lens-option selected" data-mode="1" type="button" aria-pressed="true"><span class="lens-thumb lens-round"><i></i></span><span class="lens-name">180° CIRCLE</span></button>
               <button class="lens-option" data-mode="2" type="button" aria-pressed="false"><span class="lens-thumb lens-peep"><i></i></span><span class="lens-name">PEEPHOLE</span></button>
             </div>
-            <div class="reframe-hint">Arrastra la foto para encuadrarla · pellizca para ampliar</div><div class="ratio-line"><span>FORMATO</span><div class="ratio-row" role="group" aria-label="Formato de imagen"><button class="ratio" data-ratio="original" type="button" aria-pressed="false">ORIG.</button><button class="ratio selected" data-ratio="1:1" type="button" aria-pressed="true">1:1</button><button class="ratio" data-ratio="4:5" type="button" aria-pressed="false">4:5</button><button class="ratio" data-ratio="9:16" type="button" aria-pressed="false">9:16</button></div></div>
+            <div class="reframe-hint">Arrastra la foto para encuadrarla · pellizca para ampliar</div><div class="ratio-line"><span>FORMATO</span><div class="ratio-row" role="group" aria-label="Formato de imagen"><button class="ratio" data-ratio="original" type="button" aria-pressed="false">ORIG.</button><button class="ratio selected" data-ratio="1:1" type="button" aria-pressed="true">1:1</button><button class="ratio" data-ratio="4:5" type="button" aria-pressed="false">4:5</button><button class="ratio" data-ratio="3:4" type="button" aria-pressed="false">3:4</button><button class="ratio" data-ratio="9:16" type="button" aria-pressed="false">9:16</button><button class="ratio" data-ratio="4:3" type="button" aria-pressed="false">4:3</button><button class="ratio" data-ratio="16:9" type="button" aria-pressed="false">16:9</button></div></div>
           </section>
 
           <section class="panel" id="panel-looks" role="tabpanel" aria-labelledby="tab-looks" hidden>
@@ -144,7 +144,7 @@
     <p>04 — Mantén pulsado Comparar para ver la original y toca <strong>Guardar imagen</strong> cuando termines.</p>
     <div class="help-foot">Todo el procesado sucede en tu dispositivo. No guardamos ni subimos tus fotografías.</div>
   </dialog>
-  <div class="camera-overlay hidden" id="cameraOverlay"><div class="camera-top"><strong>CÁMARA · LIVE FILTER</strong><button id="closeCamera" type="button">CERRAR ✕</button></div><div id="cameraPreview" class="camera-preview"><video id="cameraFeed" autoplay playsinline muted></video></div><div class="camera-bottom"><button id="flipCamera" type="button">↻ GIRAR</button><button id="takePhoto" type="button" aria-label="Hacer foto" class="shutter"></button><span>FILTRO ACTIVO</span></div></div><div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="app.js?v=411" defer></script>
+  <div class="camera-overlay hidden" id="cameraOverlay"><div class="camera-top"><strong>CÁMARA · LIVE FILTER</strong><button id="closeCamera" type="button">CERRAR ✕</button></div><div id="cameraPreview" class="camera-preview"><video id="cameraFeed" autoplay playsinline muted></video></div><div class="camera-controls" aria-label="Filtros en directo"><button id="cameraLens" type="button">LENTE · 180°</button><button id="cameraLook" type="button">LOOK · NIGHT VISION</button><button id="cameraRatio" type="button">FORMATO · 1:1</button></div><div class="camera-modes"><button id="cameraModePhoto" type="button" data-active="true">FOTO</button><button id="cameraModeVideo" type="button" data-active="false">VÍDEO</button></div><div class="camera-bottom"><button id="flipCamera" type="button">↻ GIRAR</button><button id="takePhoto" type="button" aria-label="Hacer foto" class="shutter"></button><button id="recordCamera" type="button" class="camera-record hidden">● REC</button><button id="cameraSave" type="button" class="camera-save hidden">GUARDAR EN FOTOS ↗</button></div><p id="cameraStatus" class="camera-status" role="status">Pulsa el disparador para hacer la foto</p></div><div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js?v=413" defer></script>
 </body>
 </html>
