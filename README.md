@@ -40,3 +40,9 @@ Se recupera la barra de formatos accesible desde LENTE, sin ocultarse detrás de
 - VÍDEO: REC, STOP, GUARDAR EN FOTOS. Se intentará crear MP4 si Safari lo soporta; WebM si no. Micrófono requiere permiso independiente.
 - **Limitación iOS:** la grabación de un canvas WebGL con audio usando MediaRecorder no funciona en todos los Safari; si no está soportada, se informa en pantalla. El menú de compartir solo mostrará Guardar vídeo si iOS reconoce el formato. No es una exportación MP4 garantizada.
 - La grabación se limita a 60 s, a 720p para reducir el uso de memoria. Prueba primero un clip corto con audio en el iPhone.
+
+## FISHEYE 4.1.4 — corrección de interfaz móvil
+
+Se ha añadido `layout-4-1-4.css`, cargado después de `styles.css`. Esta hoja sustituye las distribuciones conflictivas y evita que los controles de cámara se solapen. La interfaz se organiza en filas adaptables a la altura útil y a las áreas seguras del iPhone. La vista previa sigue siendo flexible; los controles FOTO/VÍDEO/CARGAR ocupan una fila propia; las proporciones siguen disponibles en LENTE con desplazamiento horizontal; el panel permite desplazamiento interno para no cortar opciones. Los controles de cámara (cabecera, vista previa, lente/look/formato, modo, disparador/REC/guardar, estado) se organizan con CSS Grid sin posiciones absolutas.
+
+Nota: la exportación MP4 con audio de Safari sigue siendo experimental. Comprobar físicamente en un iPhone con permisos de cámara/micrófono.

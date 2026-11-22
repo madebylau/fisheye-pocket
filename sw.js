@@ -1,5 +1,5 @@
-const VERSION = 'fisheye-v4.1.3';
-const APP_SHELL = ['./', './index.html', './styles.css?v=413', './app.js?v=413', './manifest.webmanifest', './assets/icon-192.png', './assets/icon-512.png', './assets/favicon.png', './assets/demo.jpg'];
+const VERSION = 'fisheye-v4.1.4';
+const APP_SHELL = ['./', './index.html', './styles.css?v=414', './app.js?v=414', './layout-4-1-4.css?v=414', './manifest.webmanifest', './assets/icon-192.png', './assets/icon-512.png', './assets/favicon.png', './assets/demo.jpg'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(VERSION).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
 });

@@ -1,0 +1,106 @@
+/* FISHEYE 4.1.4 — unified, collision-free mobile layout.
+   This is intentionally loaded after legacy styles so only the layout changes. */
+:root{--control-gap:8px}
+html,body{width:100%;max-width:100%;overscroll-behavior:none}
+.app-shell{height:100dvh;min-height:0;overflow:hidden;padding-left:clamp(12px,4vw,22px);padding-right:clamp(12px,4vw,22px)}
+.workspace{min-height:0;overflow:hidden}
+.topbar{height:clamp(48px,7dvh,62px);min-height:45px;flex-shrink:0}
+.stage-heading{height:36px;min-height:34px;gap:8px}
+.stage-status{min-width:0;overflow:hidden;white-space:nowrap}
+.stage-tools{flex:0 0 auto;gap:5px}
+.stage-tools .tool{width:32px;height:32px;flex:0 0 32px}
+.preview-wrap{flex:1 1 0;min-height:0;overflow:hidden}
+.preview-viewport{flex:1 1 0;min-height:0}
+.preview-stage{max-width:100%;max-height:100%;min-width:0;min-height:0}
+/* Uploaded media controls always occupy separate, predictable rows. */
+.preview-footer{height:auto!important;min-height:76px;flex:none;padding:7px 8px 8px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:16px 39px;align-items:center;column-gap:6px;row-gap:5px;white-space:nowrap;overflow:visible}
+.preview-footer #imageDimensions{grid-row:1;grid-column:1/3;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.preview-footer #lensLabel{grid-row:1;grid-column:3;text-align:right;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.preview-footer .preview-footer-sep{display:none}
+.preview-footer .replace-button{margin:0!important;width:100%;height:39px;min-width:0;justify-content:center;min-height:38px;padding:0 6px!important;border-radius:8px;font-size:10px!important;letter-spacing:0;overflow:hidden}
+.preview-footer #cameraButton{grid-row:2;grid-column:1}
+.preview-footer #videoButton{grid-row:2;grid-column:2}
+.preview-footer #uploadButton{grid-row:2;grid-column:3}
+.preview-footer #uploadButton svg{width:15px;height:15px;flex-shrink:0}
+.preview-footer #uploadButton span{overflow:hidden;text-overflow:ellipsis}
+.control-surface{flex:0 0 auto;min-height:0}
+.tabs{height:43px!important;flex:none}
+.tab{min-width:0;min-height:42px;font-size:11px;letter-spacing:.6px}
+/* Scrolling inside the tool panel is safer than clipping format controls. */
+.panel-space{height:clamp(123px,17dvh,154px)!important;overflow:hidden}
+.panel{height:100%;min-height:0;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;overscroll-behavior:contain;padding:8px 0}
+#panel-lens .lens-grid{height:66px!important;min-height:66px;gap:7px}
+#panel-lens .lens-thumb{height:39px!important}
+#panel-lens .lens-round i{width:37px!important;height:37px!important}
+#panel-lens .lens-peep i{width:32px!important;height:32px!important}
+#panel-lens .reframe-hint{display:none}
+#panel-lens .ratio-line{margin:8px 0 2px;gap:7px;min-height:34px}
+#panel-lens .ratio-row{flex:1;min-width:0;overflow-x:auto;gap:6px;padding:1px 0 4px}
+#panel-lens .ratio{height:30px;min-height:30px;flex:0 0 49px}
+.lens-name{overflow:hidden;text-overflow:ellipsis;max-width:100%;font-size:9px}
+.look-grid{padding-bottom:8px}
+.look-swatch{height:53px;margin-bottom:6px}
+.preset-actions{padding:2px 0 5px;min-height:38px}
+.adjust-grid{height:94px;min-height:94px;padding-bottom:7px}
+.adjust-option{height:79px;min-height:79px}
+.adjust-hint{display:none}
+.timestamp-line{min-height:30px;padding:2px 0 5px}
+.active-slider{height:62px!important;flex-shrink:0;padding:9px 0 6px}
+.export-dock{flex:0 0 auto;margin-top:0;padding-top:8px;padding-bottom:max(8px,env(safe-area-inset-bottom))}
+.export-inner{min-height:46px}
+.format-select-wrap{height:46px;min-width:82px}
+.export-button{min-height:46px;letter-spacing:.35px}
+.video-studio:not(.hidden){flex-shrink:0;max-height:min(29dvh,230px);overflow-y:auto;overscroll-behavior:contain;padding:8px 0;min-height:0}
+.video-heading-actions{min-width:0}
+.video-heading-actions button{white-space:nowrap}
+.video-timeline{min-height:35px}
+.video-advanced{overflow:hidden}
+/* Full-screen camera: all six regions are in document flow, no absolute overlaps. */
+.camera-overlay{position:fixed!important;inset:0!important;height:100dvh;min-height:0;z-index:100;display:grid!important;grid-template-rows:auto minmax(0,1fr) auto auto auto auto;align-content:stretch;overflow:hidden;background:#090a09;padding:0;color:white}
+.camera-overlay.hidden{display:none!important}
+.camera-top{position:relative!important;inset:auto!important;display:flex;align-items:center;gap:10px;justify-content:space-between;min-width:0;min-height:64px;padding:max(18px,env(safe-area-inset-top)) 16px 12px;background:#101110}
+.camera-top strong{font-size:12px;letter-spacing:.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.camera-top button{flex-shrink:0;min-height:38px;border:1px solid #505050!important;border-radius:9px;padding:0 12px!important;font-weight:700}
+.camera-preview{position:relative!important;inset:auto!important;min-height:0;min-width:0;width:100%;height:auto;display:grid;place-items:center;overflow:hidden;background:#050505}
+.camera-preview canvas{width:100%;height:100%;object-fit:contain;min-height:0}
+.camera-controls{position:relative!important;inset:auto!important;left:auto;right:auto;bottom:auto;display:flex;align-items:center;min-height:58px;max-width:100%;gap:8px;padding:9px 12px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;background:#101110;-webkit-overflow-scrolling:touch}
+.camera-controls button{min-height:40px;max-width:none;padding:10px 13px;font-size:11px;flex:0 0 auto}
+.camera-modes{position:relative!important;inset:auto!important;bottom:auto;width:100%;height:46px;min-height:46px;background:#101110;display:flex;justify-content:center;align-items:stretch;gap:10px}
+.camera-modes button{min-width:84px;min-height:44px;font-size:12px;font-weight:700}
+.camera-bottom{position:relative!important;inset:auto!important;bottom:auto;left:auto;right:auto;min-height:98px;max-height:none;padding:10px 16px;display:grid;grid-template-columns:minmax(70px,1fr) 92px minmax(70px,1fr);align-items:center;justify-items:center;gap:8px;background:#101110}
+.camera-bottom #flipCamera{grid-column:1;min-width:0;min-height:44px;padding:7px 4px!important;white-space:nowrap}
+.camera-bottom #takePhoto,.camera-bottom #recordCamera{grid-column:2;grid-row:1;justify-self:center}
+.camera-bottom #cameraSave{grid-column:3;grid-row:1;min-width:0;max-width:100%;overflow-wrap:anywhere;white-space:normal;line-height:1.2;text-align:center;padding:11px 7px!important}
+.camera-bottom .shutter{width:68px;height:68px;min-width:68px;border-radius:50%;padding:0;box-sizing:border-box}
+.camera-bottom .camera-record{min-height:54px;min-width:80px;font-size:12px}
+.camera-status{position:relative!important;inset:auto!important;bottom:auto;margin:0;min-height:34px;height:auto;padding:9px 12px max(9px,env(safe-area-inset-bottom));background:#101110;color:#bebebe;font-size:11px;line-height:1.4;white-space:normal;text-align:center;overflow-wrap:anywhere}
+@media(max-width:370px){
+  .preview-footer{column-gap:4px;padding-inline:5px}
+  .preview-footer .replace-button{font-size:9px!important;padding:0 3px!important}
+  .stage-tools{gap:3px}
+  .stage-tools .tool{width:30px;height:30px;flex-basis:30px}
+  .lens-name{font-size:8px}
+  .camera-bottom{grid-template-columns:minmax(60px,1fr) 78px minmax(60px,1fr);padding-inline:8px}
+  .camera-bottom .shutter{width:64px;height:64px;min-width:64px}
+  .camera-bottom .camera-record{min-width:72px}
+}
+@media(max-height:720px){
+  .topbar{height:44px;min-height:44px}
+  .stage-heading{height:32px;min-height:32px}
+  .panel-space{height:115px!important}
+  .tabs{height:39px!important}
+  .active-slider{height:56px!important}
+  .preview-footer{min-height:68px;grid-template-rows:13px 36px;padding-block:5px}
+  .preview-footer .replace-button{height:36px;min-height:36px}
+  .camera-top{min-height:52px;padding-top:max(8px,env(safe-area-inset-top));padding-bottom:6px}
+  .camera-controls{min-height:48px;padding-block:4px}
+  .camera-modes{min-height:40px;height:40px}
+  .camera-bottom{min-height:78px;padding-block:4px}
+  .camera-status{min-height:27px;padding-top:6px;padding-bottom:max(5px,env(safe-area-inset-bottom))}
+}
+@media(max-height:580px){
+  .app-shell{overflow-y:auto;min-height:580px;height:auto}
+  .workspace{min-height:440px}
+  .preview-wrap{min-height:145px}
+  .camera-overlay{overflow-y:auto;grid-template-rows:auto minmax(155px,1fr) auto auto auto auto}
+}
